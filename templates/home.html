@@ -1,0 +1,49 @@
+
+{% extends "base.html" %}
+{% load static %}
+{% if user.is_authenticated %}
+{% block content %}
+        <!-- ============================================================== -->
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+
+            <div class="container-fluid dashboard-content">
+                {% if messages %}
+                    {% for message in messages %}
+                         <div class="text-center alert alert-{{ message.tags }}">
+                             {{ message|safe }}
+                         </div>
+                    {% endfor %}
+                {% endif %}
+                <!-- ============================================================== -->
+                <!-- pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h2 class="pageheader-title">Home</h2>
+                            <p class="pageheader-text">Proin placerat ante duiullam scelerisque a velit ac porta, fusce sit amet vestibulum mi. Morbi lobortis pulvinar quam.</p>
+                            <div class="page-breadcrumb">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="breadcrumb-link">Home</a></li>
+<!--                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Pages</a></li>-->
+<!--                                        <li class="breadcrumb-item active" aria-current="page">Blank Pageheader</li>-->
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- end pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <h3 class="text-center">Welcome to Postpay BI Portal.</h3>
+                    </div>
+                </div>
+            </div>
+
+{% endblock %}
+{% endif %}

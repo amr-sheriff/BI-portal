@@ -1,0 +1,82 @@
+version: '1'
+
+services:
+  web:
+    build: .
+    command: bash -c "python manage.py collectstatic --noinput && python manage.py makemigrations && python manage.py migrate && gunicorn notif_webhook_unifonic.wsgi:application --bind 0.0.0.0:8000"
+    container_name: notif_webhook_unifonic
+    volumes:
+      - .:/notif_webhook_unifonic
+      - static_volume:/notif_webhook_unifonic/static
+      - media_volume:/notif_webhook_unifonic/media
+      - staticfiles_volume:/notif_webhook_unifonic/staticfiles
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DWH_PASS: ${DWH_PASS}
+      DWH_USER: ${DWH_USER}
+      DWH_HOST: ${DWH_HOST}
+      DWH_NAME: ${DWH_NAME}
+      DB_PORT: 5432
+    depends_on:
+      - db
+    networks:
+      - djangonetwork
+    env_file:
+      - .env
+    links:
+      - db:db
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - djangonetwork
+    env_file:
+      - .env
+    ports:
+      - '5432:5432'
+  nginx:
+    image: nginx:latest
+    restart: on-failure
+    ports:
+      - "80:80"
+      - "443:443"
+#    environment:
+#      CERTBOT_EMAIL: ${CERTBOT_EMAIL}
+#      STAGING: 1
+    volumes:
+      - ./nginx/user_conf.d:/etc/nginx/conf.d:ro
+#      - ./nginx_secrets:/etc/letsencrypt
+      - nginx_logs:/var/log/nginx
+      - .:/notif_webhook_unifonic
+      - static_volume:/notif_webhook_unifonic/static
+      - media_volume:/notif_webhook_unifonic/media
+      - staticfiles_volume:/notif_webhook_unifonic/staticfiles
+    depends_on:
+      - web
+    links:
+      - web
+    env_file:
+      - .env
+    networks:
+      - djangonetwork
+networks:
+  djangonetwork:
+    driver: bridge
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+#  nginx_secrets:
+  nginx_logs:
+  staticfiles_volume:
